@@ -1,0 +1,40 @@
+@import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-comic: "Comic Neue", "Comic Sans MS", cursive;
+  --color-brand-offwhite: #FAF9F6;
+  --color-brand-black: #0A0A0A;
+  --animate-shimmer: shimmer 2s infinite;
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-150%);
+    }
+    50% {
+      transform: translateX(150%);
+    }
+    100% {
+      transform: translateX(150%);
+    }
+  }
+}
+
+body {
+  @apply bg-brand-offwhite text-brand-black antialiased selection:bg-brand-black selection:text-brand-offwhite;
+  background: #FAF9F6;
+  position: relative;
+  font-family: var(--font-sans);
+}
+
+@layer utilities {
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
