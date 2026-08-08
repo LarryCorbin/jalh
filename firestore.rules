@@ -1,0 +1,39 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Helper Primitives ---
+    function isSignedIn() { return request.auth != null; }
+    function incoming() { return request.resource.data; }
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+    
+    // --- Validation Blueprints ---
+    
+    // Submission Validation (Anti-Update-Gap)
+    function isValidSubmission(data) {
+      return data.keys().hasAll(['name', 'email', 'subject', 'message', 'createdAt'])
+        && data.keys().size() == 5
+        && data.name is string && data.name.size() > 0 && data.name.size() <= 100
+        && data.email is string && data.email.matches('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$')
+        && data.subject is string && data.subject.size() > 0 && data.subject.size() <= 200
+        && data.message is string && data.message.size() > 0 && data.message.size() <= 5000
+        && data.createdAt == request.time; // Mandatory server timestamp validation
+    }
+
+    // --- Collection Routes ---
+
+    match /submissions/{submissionId} {
+      // Identity Poisoning Guard & ID Validation
+      allow create: if isValidId(submissionId)
+        && isValidSubmission(incoming());
+      
+      // Admin-only read access (can be enabled if we have an admin system)
+      // For now, only allow creation
+      allow read, update, delete: if false;
+    }
+  }
+}

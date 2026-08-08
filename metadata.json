@@ -1,0 +1,8 @@
+{
+  "name": "JALH Archive",
+  "description": "Scientific research archive documenting human kinetic habits, behavioral ergonomics, and digital authority of JALH.com. Supervised by Member Zero.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
