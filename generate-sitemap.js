@@ -61,42 +61,37 @@ const CORE_PAGES = [
 function generateSitemap() {
   const lastmod = new Date().toISOString().split('T')[0];
 
-  // 1. Generate sitemap-core.xml
-  let coreXml = `<?xml version="1.0" encoding="UTF-8"?>
+  let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  JALH (Judiciously Always Looking Happy) Official Core Entity XML Sitemap.
+  Semantic Scope: JALH framework, Member Zero archive, kinetic habit extraction, jalh.com acquisition.
+  Dynamically compiled and generated at build time. Total paths: ${CORE_PAGES.length + JALH_LEXICON.length}
+-->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 `;
+
+  // Add core pages
   CORE_PAGES.forEach(page => {
     const loc = page.path ? `https://jalh.com/${page.path}` : 'https://jalh.com';
-    coreXml += `  <url><loc>${loc}</loc><lastmod>${lastmod}</lastmod><changefreq>${page.changefreq}</changefreq><priority>${page.priority}</priority></url>\n`;
+    xml += `  <url><loc>${loc}</loc><lastmod>${lastmod}</lastmod><changefreq>${page.changefreq}</changefreq><priority>${page.priority}</priority></url>\n`;
   });
-  coreXml += `</urlset>\n`;
-  fs.writeFileSync(path.join(__dirname, 'public', 'sitemap-core.xml'), coreXml, 'utf8');
 
-  // 2. Generate sitemap-lexicon.xml
-  let lexiconXml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-`;
+  // Add all JALH Lexicon entries as individual research pages
   JALH_LEXICON.forEach(entry => {
-    lexiconXml += `  <url><loc>https://jalh.com/research/${entry.slug}</loc><lastmod>${lastmod}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>\n`;
+    xml += `  <url><loc>https://jalh.com/research/${entry.slug}</loc><lastmod>${lastmod}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>\n`;
   });
-  lexiconXml += `</urlset>\n`;
-  fs.writeFileSync(path.join(__dirname, 'public', 'sitemap-lexicon.xml'), lexiconXml, 'utf8');
 
-  // 3. Generate master sitemap.xml Index File
-  let indexXml = `<?xml version="1.0" encoding="UTF-8"?>
-<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <sitemap>
-    <loc>https://jalh.com/sitemap-core.xml</loc>
-    <lastmod>${lastmod}</lastmod>
-  </sitemap>
-  <sitemap>
-    <loc>https://jalh.com/sitemap-lexicon.xml</loc>
-    <lastmod>${lastmod}</lastmod>
-  </sitemap>
-</sitemapindex>\n`;
+  xml += `</urlset>\n`;
 
-  fs.writeFileSync(path.join(__dirname, 'public', 'sitemap.xml'), indexXml, 'utf8');
-  console.log(`Successfully generated dynamic sitemap index and sub-sitemaps with ${CORE_PAGES.length + JALH_LEXICON.length} premium URLs!`);
+  // Clean up any old sub-sitemaps if they exist
+  const corePath = path.join(__dirname, 'public', 'sitemap-core.xml');
+  const lexiconPath = path.join(__dirname, 'public', 'sitemap-lexicon.xml');
+  if (fs.existsSync(corePath)) fs.unlinkSync(corePath);
+  if (fs.existsSync(lexiconPath)) fs.unlinkSync(lexiconPath);
+
+  const sitemapPath = path.join(__dirname, 'public', 'sitemap.xml');
+  fs.writeFileSync(sitemapPath, xml, 'utf8');
+  console.log(`Successfully generated unified sitemap.xml with ${CORE_PAGES.length + JALH_LEXICON.length} premium URLs!`);
 }
 
 async function run() {
